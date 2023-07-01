@@ -6,30 +6,34 @@ import 'package:wt_data_visualiser_examples/models/driver.dart';
 import 'package:wt_data_visualiser_examples/models/supplier.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const DataVisualiserDemo());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class DataVisualiserDemo extends StatelessWidget {
+  const DataVisualiserDemo({super.key});
 
-  static final customer = Customer(
-    id: '001',
-    name: 'Customer 1',
-    phone: '040400001',
-    email: 'customer+1@example.com',
-    address: '1 main street, Pakenham',
-    postcode: 3810,
-  );
-
-  static final supplier = Supplier(id: '001', name: 'Supplier 1', code: 'SUP1');
-  static final driver = Driver(id: '001', name: 'Driver 1', phone: '0404111111');
   static final delivery = Delivery(
-    customer: customer,
-    supplier: supplier,
-    driver: driver,
+    customer: Customer(
+      id: '001',
+      name: 'Customer 1',
+      phone: '040400001',
+      email: 'customer+1@example.com',
+      address: '1 main street, Pakenham',
+      postcode: 3810,
+    ),
+    supplier: Supplier(
+      id: '001',
+      name: 'Supplier 1',
+      code: 'SUP1',
+    ),
+    driver: Driver(
+      id: '001',
+      name: 'Driver 1',
+      phone: '0404111111',
+    ),
   );
-  static final dataList1 = ['First', dataMap2, 'Last', delivery];
 
+  static final dataList1 = ['First', delivery, dataMap2, 'Last'];
   static final dataMap1 = {
     'a': 'A',
     'b': 'B',
@@ -68,7 +72,9 @@ class MyApp extends StatelessWidget {
             children: [
               Expanded(
                 child: DataVisualiser(
-                  data: dataList1,
+                  // treeNode: DeliveryTreeNodeTransform().transform(delivery),
+                  // treeNode: ObjectToTreeNodesTransform().transform(dataList1),
+                  treeNode: ModelTreeNodeTransformer().transform(dataList1),
                 ),
               )
             ],
