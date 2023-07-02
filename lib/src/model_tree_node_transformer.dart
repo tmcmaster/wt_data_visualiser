@@ -2,15 +2,19 @@ import 'package:wt_data_visualiser/src/data_visualiser_node.dart';
 import 'package:wt_data_visualiser/src/tree_node_transform.dart';
 import 'package:wt_models/wt_models.dart';
 
-class DynamicTreeNodeTransformer with TreeNodeTransformer<dynamic, String> {
-  final Map<Type, TreeNodeTransformer<dynamic, String>> transformerMap;
+class ModelTreeNodeTransformer with TreeNodeTransformer<dynamic, String> {
+  final TransformerMap transformerMap;
 
-  DynamicTreeNodeTransformer({
+  ModelTreeNodeTransformer({
     this.transformerMap = const {},
   });
 
   @override
-  DataVisualiserNode<String> transform(dynamic object, {String? title}) {
+  DataVisualiserNode<String> transform(
+    dynamic object, {
+    String? title,
+    required TransformerMap transformerMap,
+  }) {
     if (object is List) {
       final parentNode = DataVisualiserNode(title: title ?? 'List', value: '(${object.length})');
       parentNode.addAll(
@@ -18,7 +22,7 @@ class DynamicTreeNodeTransformer with TreeNodeTransformer<dynamic, String> {
           final dataTitle = getDataTitle(o);
           final transformer =
               transformerMap[o.runtimeType] ?? TreeNodeTransformer.defaultTransformer;
-          return transformer.transform(o, title: dataTitle);
+          return transformer.transform(o, title: dataTitle, transformerMap: transformerMap);
         }).toList(),
       );
       return parentNode;
@@ -30,14 +34,17 @@ class DynamicTreeNodeTransformer with TreeNodeTransformer<dynamic, String> {
           final transformer =
               transformerMap[data.runtimeType] ?? TreeNodeTransformer.defaultTransformer;
           final dataTitle = getDataTitle(data, title: e.key);
-          return transformer.transform(data, title: dataTitle);
+          return transformer.transform(data, title: dataTitle, transformerMap: transformerMap);
         }).toList(),
       );
       return parentNode;
     } else {
       final transformer =
           transformerMap[object.runtimeType] ?? TreeNodeTransformer.defaultTransformer;
-      return transformer.transform(object);
+      return transformer.transform(
+        object,
+        transformerMap: transformerMap,
+      );
     }
   }
 

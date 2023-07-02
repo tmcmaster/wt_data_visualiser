@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wt_data_visualiser/wt_data_visualiser.dart';
+import 'package:wt_data_visualiser_examples/data_visualiser_page_view.dart';
 import 'package:wt_data_visualiser_examples/models/customer.dart';
 import 'package:wt_data_visualiser_examples/models/delivery.dart';
 import 'package:wt_data_visualiser_examples/models/driver.dart';
@@ -12,86 +12,89 @@ void main() {
 class DataVisualiserDemo extends StatelessWidget {
   const DataVisualiserDemo({super.key});
 
-  static final delivery = Delivery(
-    customer: Customer(
-      id: '001',
-      name: 'Customer 1',
-      phone: '040400001',
-      email: 'customer+1@example.com',
-      address: '1 main street, Pakenham',
-      postcode: 3810,
-    ),
-    supplier: Supplier(
-      id: '001',
-      name: 'Supplier 1',
-      code: 'SUP1',
-    ),
-    driver: Driver(
-      id: '001',
-      name: 'Driver 1',
-      phone: '0404111111',
-    ),
-  );
-
-  // static final dataList1 = ['First', delivery, dataMap2, 'Last'];
-
-  static final dataMap1 = {
-    'a': 'A',
-    'b': 'B',
-    'c': {
-      'cc': 'C',
-      'dd': 'D',
-      'ee': 'E',
-      'ff': 'F',
-    },
-  };
-
-  static final dataList2 = ['AAA', dataMap1, 'CCC'];
-
-  static final dataMap2 = {
-    'a': 'AA',
-    'b': 'BB',
-    'c': {
-      'cc': 'CC',
-      'dd': 'DD',
-      'ee': dataList2,
-      'ff': 'FF',
-    },
-  };
-
-  static final objectsToView = <String, dynamic>{
-    'First Item': 'First',
-    'Delivery': delivery,
-    'Data Map': dataMap2,
-    'Last Item': 'Last',
-  };
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       home: Scaffold(
         body: Center(
-          child: Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: DataVisualiser(
-                    // treeNode: DeliveryTreeNodeTransform().transform(delivery),
-                    // treeNode: ObjectToTreeNodesTransform().transform(dataList1),
-                    treeNode: DynamicTreeNodeTransformer().transform(objectsToView),
-                  ),
-                ),
-              )
-            ],
+          child: DataVisualiserPageView(
+            dataSets: {
+              'A String': 'First',
+              'An Integer': 1,
+              'A Double': 1.2,
+              'A Boolean': false,
+              'List of Scalars': const ['Cat', 1, 1.1, true],
+              'Delivery': deliveryContainingModels,
+              'Data Map': nestedMapContainingList,
+              'Data List': listContainingModeAndMap,
+              'Last Item': 'Last',
+              'List Containing Mode and Map': listContainingModeAndMap,
+            },
           ),
         ),
       ),
     );
   }
 }
+
+final deliveryContainingModels = Delivery(
+  customer: Customer(
+    id: '001',
+    name: 'Customer 1',
+    phone: '040400001',
+    email: 'customer+1@example.com',
+    address: '1 main street, Pakenham',
+    postcode: 3810,
+  ),
+  supplier: Supplier(
+    id: '001',
+    name: 'Supplier 1',
+    code: 'SUP1',
+  ),
+  driver: Driver(
+    id: '001',
+    name: 'Driver 1',
+    phone: '0404111111',
+  ),
+);
+
+final listContainingModeAndMap = [
+  'First',
+  deliveryContainingModels,
+  nestedMapContainingList,
+  'Last',
+];
+
+final nestedMap = {
+  'a': 'A',
+  'b': 'B',
+  'c': {
+    'cc': 'C',
+    'dd': 'D',
+    'ee': 'E',
+    'ff': 'F',
+  },
+};
+
+final listContainingMap = [
+  'List First',
+  nestedMap,
+  'List Last',
+];
+
+final nestedMapContainingList = {
+  'a': 'AA',
+  'b': 'BB',
+  'c': {
+    'cc': 'CC',
+    'dd': 'DD',
+    'ee': listContainingMap,
+    'ff': 'FF',
+  },
+};

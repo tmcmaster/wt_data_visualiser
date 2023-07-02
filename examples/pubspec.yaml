@@ -17,6 +17,7 @@ scripts:
     build: flutter pub run build_runner build --delete-conflicting-outputs
 
 dependencies:
+  animated_tree_view:
   cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter

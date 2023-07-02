@@ -4,10 +4,18 @@ import 'package:wt_data_visualiser/src/tree_node_transform.dart';
 import 'package:wt_models/wt_models.dart';
 
 class ObjectToTreeNodeTransform with TreeNodeTransformer<dynamic, String> {
-  ObjectToTreeNodeTransform();
+  final TransformerMap transformerMap;
+
+  ObjectToTreeNodeTransform({
+    this.transformerMap = const {},
+  });
 
   @override
-  DataVisualiserNode<String> transform(dynamic object, {String? title}) {
+  DataVisualiserNode<String> transform(
+    dynamic object, {
+    String? title,
+    required TransformerMap transformerMap,
+  }) {
     if (object is List) {
       final parent = DataVisualiserNode(title: title ?? 'List', value: 'List');
       _walkList(object, parent);
@@ -21,9 +29,11 @@ class ObjectToTreeNodeTransform with TreeNodeTransformer<dynamic, String> {
       final nodeTitle =
           object is TitleSupport ? (object as TitleSupport).getTitle() : title ?? 'Object';
       final parent = DataVisualiserNode(title: nodeTitle, value: 'Model');
-      parent.addAll(jsonData.entries.map((e) {
-        return transform(e.value, title: e.key);
-      }).toList());
+      parent.addAll(
+        jsonData.entries.map((e) {
+          return transform(e.value, title: e.key, transformerMap: transformerMap);
+        }).toList(),
+      );
       // _walkObject(jsonData, parent);
       return parent;
     } else {
@@ -69,8 +79,8 @@ class ObjectToTreeNodeTransform with TreeNodeTransformer<dynamic, String> {
       if (item is String || item is int || item is double || item is bool) {
         parent.add(
           DataVisualiserNode(
-            title: 'Object',
-            value: item.toString(),
+            title: item.toString(),
+            value: item.runtimeType,
           ),
         );
       } else if (item is Map) {

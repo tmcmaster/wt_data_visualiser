@@ -3,32 +3,72 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wt_data_visualiser/src/tree_node_data.dart';
 import 'package:wt_data_visualiser/src/tree_node_transform.dart';
+import 'package:wt_models/wt_models.dart';
 
-class DataVisualiser extends StatefulWidget {
-  final TreeNodeTransformer? transform;
-  final dynamic object;
-  final TreeNode? treeNode;
+class DataVisualiser extends StatelessWidget {
+  final String title;
   final bool showSnackBar;
   final bool expandChildrenOnReady;
-
+  final TreeNode _treeNode;
   DataVisualiser({
     super.key,
-    this.transform,
-    this.object,
-    this.treeNode,
+    dynamic object,
+    TransformerMap transformMap = const {},
+    String? objectLabel,
+    this.title = 'Data Visualiser',
     this.showSnackBar = false,
     this.expandChildrenOnReady = false,
-  }) {
-    if (!(treeNode != null || object != null && transform != null)) {
-      throw Exception('Either widget.treeNode, or object and transform, need to be non null.');
-    }
+  }) : _treeNode = _getParentTreeNode(transformMap, object, objectLabel);
+
+  static Type _getType(dynamic object) {
+    return object is TypeSupport ? object.getType() : object.runtimeType;
+  }
+
+  static TreeNode _getParentTreeNode(
+    TransformerMap transformerMap,
+    dynamic object,
+    String? objectLabel,
+  ) {
+    return _getTransformer(transformerMap, object).transform(
+      object,
+      transformerMap: transformerMap,
+      title: objectLabel,
+    );
+  }
+
+  static TreeNodeTransformer _getTransformer(TransformerMap transformerMap, dynamic object) {
+    return transformerMap[_getType(object)] ?? TreeNodeTransformer.defaultTransformer;
   }
 
   @override
-  DataVisualiserState createState() => DataVisualiserState();
+  Widget build(BuildContext context) {
+    return _DataVisualiserWidget(
+      title: title,
+      treeNode: _treeNode,
+      showSnackBar: false,
+      expandChildrenOnReady: true,
+    );
+  }
 }
 
-class DataVisualiserState extends State<DataVisualiser> {
+class _DataVisualiserWidget extends StatefulWidget {
+  final String title;
+  final TreeNode treeNode;
+  final bool showSnackBar;
+  final bool expandChildrenOnReady;
+
+  const _DataVisualiserWidget({
+    required this.title,
+    required this.treeNode,
+    this.showSnackBar = false,
+    this.expandChildrenOnReady = false,
+  });
+
+  @override
+  DataVisualiserWidgetState createState() => DataVisualiserWidgetState();
+}
+
+class DataVisualiserWidgetState extends State<_DataVisualiserWidget> {
   static final Map<int, Color> _colorMapper = {
     0: Colors.white,
     1: Colors.blueGrey[50]!,
@@ -44,78 +84,68 @@ class DataVisualiserState extends State<DataVisualiser> {
   };
 
   TreeViewController? _controller;
-  TreeNode? _treeNode;
-
-  @override
-  void initState() {
-    super.initState();
-    final treeNode = widget.treeNode ?? widget.transform?.transform(widget.object);
-    setState(() {
-      _treeNode = treeNode;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return _treeNode == null
-        ? const CircularProgressIndicator()
-        : Scaffold(
-            appBar: AppBar(
-              title: const Text('Data Visualiser'),
-            ),
-            floatingActionButton: ValueListenableBuilder<bool>(
-              valueListenable: _treeNode!.expansionNotifier,
-              builder: (context, isExpanded, _) {
-                return FloatingActionButton.extended(
-                  onPressed: () {
-                    if (_treeNode!.isExpanded) {
-                      _controller?.collapseNode(_treeNode!);
-                    } else {
-                      _controller?.expandAllChildren(_treeNode!);
-                    }
-                  },
-                  label: isExpanded ? const Text('Collapse all') : const Text('Expand all'),
-                );
-              },
-            ),
-            body: TreeView.simple(
-              tree: _treeNode!,
-              showRootNode: true,
-              expansionIndicatorBuilder: (context, node) => ChevronIndicator.rightDown(
-                tree: node,
-                color: Colors.blue[700],
-                padding: const EdgeInsets.all(8),
-              ),
-              indentation: const Indentation(
-                style: IndentStyle.squareJoint,
-              ),
-              onItemTap: (item) {
-                if (kDebugMode) print('Item tapped: ${item.key}');
+    final treeNode = widget.treeNode;
 
-                if (widget.showSnackBar) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Item tapped: ${item.key}'),
-                      duration: const Duration(milliseconds: 750),
-                    ),
-                  );
-                }
-              },
-              onTreeReady: (controller) {
-                _controller = controller;
-                if (widget.expandChildrenOnReady) controller.expandAllChildren(_treeNode!);
-              },
-              builder: (context, TreeNode node) {
-                final data = node.data as TreeNodeData;
-                return Card(
-                  color: _colorMapper[node.level.clamp(0, _colorMapper.length - 1)],
-                  child: ListTile(
-                    title: Text(data.title),
-                    subtitle: Text(data.value.toString()),
-                  ),
-                );
-              },
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: treeNode.expansionNotifier,
+        builder: (context, isExpanded, _) {
+          return FloatingActionButton.extended(
+            onPressed: () {
+              if (treeNode.isExpanded) {
+                _controller?.collapseNode(treeNode);
+              } else {
+                _controller?.expandAllChildren(treeNode);
+              }
+            },
+            label: isExpanded ? const Text('Collapse all') : const Text('Expand all'),
+          );
+        },
+      ),
+      body: TreeView.simple(
+        tree: treeNode,
+        showRootNode: true,
+        expansionIndicatorBuilder: (context, node) => ChevronIndicator.rightDown(
+          tree: node,
+          color: Colors.blue[700],
+          padding: const EdgeInsets.all(8),
+        ),
+        indentation: const Indentation(
+          style: IndentStyle.squareJoint,
+        ),
+        onItemTap: (item) {
+          if (kDebugMode) print('Item tapped: ${item.key}');
+
+          if (widget.showSnackBar) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Item tapped: ${item.key}'),
+                duration: const Duration(milliseconds: 750),
+              ),
+            );
+          }
+        },
+        onTreeReady: (controller) {
+          _controller = controller;
+          if (widget.expandChildrenOnReady) controller.expandAllChildren(treeNode);
+        },
+        builder: (context, TreeNode node) {
+          final data = node.data as TreeNodeData;
+          return Card(
+            color: _colorMapper[node.level.clamp(0, _colorMapper.length - 1)],
+            child: ListTile(
+              title: Text(data.title),
+              subtitle: Text(data.value.toString()),
             ),
           );
+        },
+      ),
+    );
   }
 }
