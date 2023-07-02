@@ -33,7 +33,8 @@ class DataVisualiserDemo extends StatelessWidget {
     ),
   );
 
-  static final dataList1 = ['First', delivery, dataMap2, 'Last'];
+  // static final dataList1 = ['First', delivery, dataMap2, 'Last'];
+
   static final dataMap1 = {
     'a': 'A',
     'b': 'B',
@@ -58,6 +59,13 @@ class DataVisualiserDemo extends StatelessWidget {
     },
   };
 
+  static final objectsToView = <String, dynamic>{
+    'First Item': 'First',
+    'Delivery': delivery,
+    'Data Map': dataMap2,
+    'Last Item': 'Last',
+  };
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,10 +79,13 @@ class DataVisualiserDemo extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: DataVisualiser(
-                  // treeNode: DeliveryTreeNodeTransform().transform(delivery),
-                  // treeNode: ObjectToTreeNodesTransform().transform(dataList1),
-                  treeNode: ModelTreeNodeTransformer().transform(dataList1),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: DataVisualiser(
+                    // treeNode: DeliveryTreeNodeTransform().transform(delivery),
+                    // treeNode: ObjectToTreeNodesTransform().transform(dataList1),
+                    treeNode: DynamicTreeNodeTransformer().transform(objectsToView),
+                  ),
                 ),
               )
             ],

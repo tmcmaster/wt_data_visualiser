@@ -18,8 +18,13 @@ class ObjectToTreeNodeTransform with TreeNodeTransformer<dynamic, String> {
       return parent;
     } else if (object is JsonSupport) {
       final jsonData = object.toJson();
-      final parent = DataVisualiserNode(title: title ?? 'JsonSupport', value: 'JsonSupport');
-      _walkObject(jsonData, parent);
+      final nodeTitle =
+          object is TitleSupport ? (object as TitleSupport).getTitle() : title ?? 'Object';
+      final parent = DataVisualiserNode(title: nodeTitle, value: 'Model');
+      parent.addAll(jsonData.entries.map((e) {
+        return transform(e.value, title: e.key);
+      }).toList());
+      // _walkObject(jsonData, parent);
       return parent;
     } else {
       return DataVisualiserNode(title: title ?? 'Object', value: object.toString());
