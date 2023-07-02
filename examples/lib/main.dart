@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wt_data_visualiser_examples/data_visualiser_page_view.dart';
 import 'package:wt_data_visualiser_examples/models/customer.dart';
 import 'package:wt_data_visualiser_examples/models/delivery.dart';
 import 'package:wt_data_visualiser_examples/models/driver.dart';
 import 'package:wt_data_visualiser_examples/models/supplier.dart';
+import 'package:wt_data_visualiser_examples/widgets/data_visualiser_page_view.dart';
 
 void main() {
   runApp(const DataVisualiserDemo());
