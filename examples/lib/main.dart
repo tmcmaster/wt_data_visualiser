@@ -5,6 +5,13 @@ import 'package:wt_data_visualiser_examples/models/driver.dart';
 import 'package:wt_data_visualiser_examples/models/supplier.dart';
 import 'package:wt_data_visualiser_examples/widgets/data_visualiser_page_view.dart';
 
+// TODO: there is a bug with this component, that causes exceptions in the console
+//  when the hot reload is called. It is something to do with the way that the nodes are being
+// build, and I suspect the building will need to be moved down into the main _DataVisualiserWidget class.
+// ERROR:
+//    The node <46591677-bff7-4dbb-a84f-1dd00e0cb20e> does not exist in the parent <46591677-bff7-4dbb-a84f-1dd00e0cb20e>}
+// AND:
+//    Each child must be laid out exactly once.
 void main() {
   runApp(const DataVisualiserDemo());
 }
@@ -25,12 +32,12 @@ class DataVisualiserDemo extends StatelessWidget {
         body: Center(
           child: DataVisualiserPageView(
             dataSets: {
+              'Delivery': deliveryContainingModels,
               'A String': 'First',
               'An Integer': 1,
               'A Double': 1.2,
               'A Boolean': false,
               'List of Scalars': const ['Cat', 1, 1.1, true],
-              'Delivery': deliveryContainingModels,
               'Data Map': nestedMapContainingList,
               'Data List': listContainingModeAndMap,
               'Last Item': 'Last',

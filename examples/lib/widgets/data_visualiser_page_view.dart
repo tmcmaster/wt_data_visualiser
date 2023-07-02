@@ -22,8 +22,7 @@ class _DataVisualiserPageViewState extends State<DataVisualiserPageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.amber,
+    return Padding(
       padding: const EdgeInsets.all(20.0),
       child: PageView(
         controller: _controller,

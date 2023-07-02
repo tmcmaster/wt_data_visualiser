@@ -1,8 +1,8 @@
 import 'package:animated_tree_view/animated_tree_view.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wt_data_visualiser/src/tree_node_data.dart';
 import 'package:wt_data_visualiser/src/tree_node_transform.dart';
+import 'package:wt_logging/wt_logging.dart';
 import 'package:wt_models/wt_models.dart';
 
 class DataVisualiser extends StatelessWidget {
@@ -69,6 +69,8 @@ class _DataVisualiserWidget extends StatefulWidget {
 }
 
 class DataVisualiserWidgetState extends State<_DataVisualiserWidget> {
+  static final log = logger('DataVisualiser');
+
   static final Map<int, Color> _colorMapper = {
     0: Colors.white,
     1: Colors.blueGrey[50]!,
@@ -120,7 +122,7 @@ class DataVisualiserWidgetState extends State<_DataVisualiserWidget> {
           style: IndentStyle.squareJoint,
         ),
         onItemTap: (item) {
-          if (kDebugMode) print('Item tapped: ${item.key}');
+          log.d('Item tapped: ${item.key}');
 
           if (widget.showSnackBar) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -140,6 +142,7 @@ class DataVisualiserWidgetState extends State<_DataVisualiserWidget> {
           return Card(
             color: _colorMapper[node.level.clamp(0, _colorMapper.length - 1)],
             child: ListTile(
+              key: ValueKey(node.key),
               title: Text(data.title),
               subtitle: Text(data.value.toString()),
             ),
